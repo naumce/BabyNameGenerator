@@ -6,67 +6,75 @@
       <p class="py-5">
         Choose your options and click the "Find Names" button below
       </p>
-      <div class="bg-pink-300 rounded-3xl">
-        <div class="options-container">
-          <h4 class="font-bold text-lg py-4">1- Choose a gender</h4>
-          <div class="option-buttons">
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 inline-flex items-center border-2 border-pink-400 rounded-tl-2xl rounded-bl-2xl"
-            >
-              Boy
-            </button>
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 inline-flex items-center border-2 border-pink-400 border-l-0 border-r-0"
-            >
-              Unisex
-            </button>
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 items center inline-flex border-2 border-pink-400 rounded-tr-2xl rounded-br-2xl"
-            >
-              Girl
-            </button>
-          </div>
-        </div>
-        <div class="options-container">
-          <h4 class="font-bold text-lg py-4">
-            2- Choose the name's popularity
-          </h4>
-          <div class="option-buttons">
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 items-center inline-flex border-2 border-r-0 border-pink-400 rounded-tl-2xl rounded-bl-2xl"
-            >
-              Unique
-            </button>
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 items-center inline-flex border-2 border-pink-400 rounded-tr-2xl rounded-br-2xl"
-            >
-              Trendy
-            </button>
-          </div>
-        </div>
-        <div class="options-container">
-          <h4 class="font-bold text-lg py-4">3- Choose the name's length</h4>
-          <div class="option-buttons pb-5">
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 inline-flex items-center border-2 border-r-0 border-pink-400 rounded-tl-2xl rounded-bl-2xl"
-            >
-              Long
-            </button>
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 inline-flex items-center border-2 border-pink-400"
-            >
-              All
-            </button>
-            <button
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-4 inline-flex items-center border-2 border-l-0 border-pink-400 rounded-tr-2xl rounded-br-2xl"
-            >
-              Short
-            </button>
-          </div>
-        </div>
+      <div class="options-container bg-pink-300 rounded-3xl">
+        <Option
+          v-for="option in optionsArray"
+          :key="option.title"
+          :option="option"
+          :options="options"
+        />
+        <button
+          class="bg-blue-400 hover:bg-blue-600 text-gray-300 font-bold py-1 px-6 inline-flex border-2 border-blue-800 rounded-2xl my-4 active:bg-blue-500"
+          @click="computeSelectedNames"
+        >
+          Find Name
+        </button>
+      </div>
+      <div class="cards flex mt-3 flex-wrap justify-around">
+        <CardName
+          v-for="(name, index) in selectedNames"
+          :key="name"
+          :name="name"
+          @remove="() => removeName(index)"
+          :index="index"
+        />
       </div>
     </div>
   </div>
 </template>
 
+<script setup lang="ts">
+import { Gender, Popularity, Length, OptionState, names } from "@/data.ts"
+
+const options = reactive<OptionsState>({
+  gender: Gender.GIRL,
+  popularity: Popularity.TRENDY,
+  length: Length.SHORT
+})
+
+const selectedNames = ref<string[]>([])
+
+const optionsArray = [
+  {
+    title: "1 Choose a gender",
+    category: "gender",
+    buttons: [Gender.GIRL, Gender.BOY, Gender.UNISEX]
+  },
+  {
+    title: "1 Choose  the name's popularity",
+    category: "popularity",
+    buttons: [Popularity.UNIQUE, Popularity.TRENDY]
+  },
+  {
+    title: "1 Choose name's length",
+    category: "length",
+    buttons: [Length.SHORT, Length.ALL, Length.LONG]
+  }
+]
+const computeSelectedNames = () => {
+  const filteredNames = names
+    .filter(name => name.gender === options.gender)
+    .filter(name => name.popularity === options.popularity)
+    .filter(name => {
+      if (options.length === Length.ALL) return true
+      else return name.length === options.length
+    })
+  selectedNames.value = filteredNames.map(name => name.name)
+}
+const removeName = (index: number) => {
+  const filteredNames = [...selectedNames.value]
+  filteredNames.splice(index, 1)
+  selectedNames.value = filteredNames
+}
+</script>
 <style scoped></style>

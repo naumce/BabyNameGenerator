@@ -1,0 +1,6 @@
+{
+    "typescript.inlayHints.functionLikeReturnTypes.enabled": false,
+    "typescript.tsserver.watchOptions": {
+    
+    }
+}
